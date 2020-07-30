@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>流程定义列表</title>
+    <link rel="stylesheet" href="../css/layui.css" media="all">
+    <link rel="stylesheet" href="../layui.js?t=1594038786020"  media="all">
+    <style>
+        body{margin: 10px;}
+        .demo-carousel{height: 200px; line-height: 200px; text-align: center;}
+    </style>
+    <script src="../js/jquery.min.js"></script>
+
+    <script th:inline="javascript">
+        function deleteProcess(obj){
+            if(confirm('您确认要删除吗')){
+                var id=obj.attributes['objectid'].nodeValue;
+                $.ajax({
+                    url:"/processInstance/delete/"+id,
+                    type:"GET",
+                    success:function(res){
+                        alert(res);
+                        $("#taskList").submit();
+                    }
+
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+
+
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+    <ul class="layui-tab-title">
+        <li><a href="/model/create">新建流程</a></li>
+        <li ><a href="/model/list">流程模型</a></li>
+        <li><a href="/processDefinition/list">流程定义</a></li>
+        <li class="layui-this"><a href="/processInstance/list">流程实例</a></li>
+        <li><a href="/task/list">当前任务</a></li>
+        <li ><a href="/historicProcessInstance/list">历史实例</a></li>
+    </ul>
+</div>
+
+<form id="taskList" class="layui-form layui-form-pane" action="/processInstance/list">
+
+    <div class="layui-form-item">
+
+        <div class="layui-inline">
+            <label class="layui-form-label">部署ID</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${deploymentId}" name="deploymentId" placeholder="请输入" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-inline">
+            <label class="layui-form-label">流程key</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${key}" name="key" placeholder="请输入" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">name</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${name}" name="name" placeholder="请输入" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-inline">
+            <label class="layui-form-label">userId</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${userId}" name="userId" placeholder="请输入" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-inline">
+            <button type="submit" class="layui-btn layuiadmin-btn-list" lay-submit="" lay-filter="LAY-app-contlist-search">
+                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+            </button>
+        </div>
+
+    </div>
+
+</form>
+
+<div class="layui-form">
+    <table class="layui-table">
+        <colgroup>
+            <col width="150">
+            <col width="150">
+            <col width="200">
+            <col>
+        </colgroup>
+        <thead>
+        <tr>
+
+            <th>实例ID</th>
+            <th>key</th>
+            <th>name</th>
+            <th>开始人</th>
+            <th>开始时间</th>
+            <th>部署ID</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="data : ${list}">
+            <td th:text="${data.id}"></td>
+            <td th:text="${data.processDefinitionKey}"></td>
+            <td th:text="${data.name}"></td>
+            <td th:text="${data.startUserId}"></td>
+            <td th:text="${#dates.format(data.startTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${data.deploymentId}"></td>
+            <td>
+                <a target="_blank" th:href="${'/task/view?processInstanceId='+data.id}" class="layui-btn layui-btn-xs">流程图</a>
+                <a th:href="${'/task/list?processInstanceId='+data.id}" class="layui-btn layui-btn-primary layui-btn-xs">当前任务</a>
+                <a href="javascript:void(0);" onclick="deleteProcess(this);" th:attrappend="objectId=${data.id}" class="layui-btn layui-btn-danger layui-btn-xs">删除</a>
+
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

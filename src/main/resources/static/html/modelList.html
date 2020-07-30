@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>模型model列表</title>
+    <link rel="stylesheet" href="../css/layui.css" media="all">
+    <link rel="stylesheet" href="../layui.js?t=1594038786020"  media="all">
+    <style>
+        body{margin: 10px;}
+        .demo-carousel{height: 200px; line-height: 200px; text-align: center;}
+    </style>
+    <script src="../js/jquery.min.js"></script>
+    <script th:inline="javascript">
+        function deployment(obj){
+            if(confirm('您确认要发布吗')){
+                var id=obj.attributes['objectid'].nodeValue;
+                $.ajax({
+                    url:"/model/deployment/"+id,
+                    type:"GET",
+                    success:function(res){
+                        alert(res);
+                        if(res=="流程发布成功"){
+                            window.location.href='/model/list';
+                        }
+                    }
+                });
+            }
+        }
+
+        function deleteProcess(obj){
+            if(confirm('您确认要删除吗')){
+                var id=obj.attributes['objectid'].nodeValue;
+                $.ajax({
+                    url:"/model/delete/"+id,
+                    type:"GET",
+                    success:function(res){
+                        alert(res);
+                        window.location.href='/model/list';
+                    }
+                });
+            }
+        }
+
+    </script>
+</head>
+<body>
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+    <ul class="layui-tab-title">
+        <li><a href="/model/create">新建流程</a></li>
+        <li  class="layui-this" ><a href="/model/list">流程模型</a></li>
+        <li><a href="/processDefinition/list">流程定义</a></li>
+        <li ><a href="/processInstance/list">流程实例</a></li>
+        <li ><a href="/task/list">当前任务</a></li>
+        <li ><a href="/historicProcessInstance/list">历史实例</a></li>
+    </ul>
+</div>
+
+<div class="layui-form">
+    <table class="layui-table">
+        <colgroup>
+            <col width="150">
+            <col width="150">
+            <col width="200">
+            <col>
+        </colgroup>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>模型名称</th>
+            <th>key</th>
+            <th>部署ID</th>
+            <th>创建时间</th>
+            <th>最后更新时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="data : ${models}">
+            <td th:text="${data.id}"></td>
+            <td><a th:href="@{/modeler.html(modelId=${data.id})}" class="font-blue" th:text="${data.name}"></a>
+            </td>
+            <td th:text="${data.key}"></td>
+            <td th:text="${data.deploymentId}"></td>
+            <td th:text="${#dates.format(data.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${#dates.format(data.lastUpdateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+
+            <td>
+                <a th:href="@{/modeler.html(modelId=${data.id})}" class="layui-btn layui-btn-xs">编辑</a>
+                <a href="javascript:void(0);" onclick="deployment(this);" th:attrappend="objectId=${data.id}" class="layui-btn layui-btn-primary layui-btn-xs">发布</a>
+                <a href="javascript:void(0);" onclick="deleteProcess(this);" th:attrappend="objectId=${data.id}" class="layui-btn layui-btn-danger layui-btn-xs">删除</a>
+                <a th:href="${'/processInstance/list?deploymentId='+data.deploymentId}" class="layui-btn layui-btn-primary layui-btn-xs">流程实例</a>
+            </td>
+
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+</body>
+<script src="../layui.js" charset="utf-8"></script>
+<script>
+    layui.use('element', function(){
+        var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
+
+        //监听导航点击
+        element.on('nav(demo)', function(elem){
+            //console.log(elem)
+            layer.msg(elem.text());
+        });
+    });
+</script>
+</html>
